@@ -757,9 +757,12 @@ void NetBuffer::expandBuffer(uint32_t needSize)
 忽略网络延迟因素（当然实际不能忽略，节目效果谢谢），相较于直接从内核缓冲区中读取并解析，加入了网络缓冲区的版本有了巨大性能提升。在50000次请求中耗时减少一半。
 
 无缓冲区测试结果
+
 ![无缓冲区测试结果](https://img-blog.csdnimg.cn/aa17f70fa97e42f9a02b69b65e556239.jpeg#pic_center)
-<br>
+
+
 加入缓冲区测试结果
+
 ![加入缓冲区测试结果](https://img-blog.csdnimg.cn/4e5daec6b7334c3c8ac0ca6f1de8bdd2.jpeg#pic_center)
 
 文章摘要
