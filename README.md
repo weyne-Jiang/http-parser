@@ -20,7 +20,7 @@
   
 * 3. 网络缓冲区
   
-  * 3.1网络缓冲区的目的
+  * 3.1 网络缓冲区的目的
   
   * 3.2 网络缓冲区选型与设计
   
@@ -571,10 +571,12 @@ chunked编码具体详解可见[HTTP 进阶之 chunked 编码](http://www.parade
 1. 设计读缓冲区的目的：当从TCP中读数据时，不能确定读到的是一个完整的数据包，如果是不完整的数据包，需要先放入缓冲区中进行缓存，直到数据包完整才进行业务处理。
 设计写缓冲区的目的：向TCP写数据不能保证所有数据写成功，如果TCP写缓冲区已满，则会丢弃数据包，所以需要一个写缓冲区暂时存储需要写的数据。
 2. 由于在进行HTTP响应解析时，并不确定需要读TCP内核缓冲区的具体长度，故比较稳妥的方式是一个一个字符地读取，完成响应头解析后，根据传输编码采用不同方式读取响应体内容。但此方式会出现用户态和内核态的频繁转换，上下文切换的开销巨大。故可加入网络缓冲区进行数据暂存，解析时从用户态的网络缓冲区中读取数据，避免频繁切换到内核态。
+
 ![网络缓冲区和内核中TCP缓冲区的关系](https://img-blog.csdnimg.cn/86901e4720fa49b5bd69c9065a0694fc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5piv6Zi_5q-b5ZWK,size_20,color_FFFFFF,t_70,g_se,x_16)
 ## 3.2 网络缓冲区选型与设计
 考虑可使用环形缓冲区和线性可扩展缓冲区。由于环形缓冲区满时空间扩展繁琐，故使用线性可扩展缓冲区。
 下图设计了一种线性可扩展的读写缓冲区，初始化时预分配了一片连续的内存空间作为缓冲区区域。缓冲区分为数据空间和预留空间。相较于环形缓冲区，扩容简单，但也为了最大化利用空间，会将数据移动至头部，故移动操作会损耗一定性能。
+
 ![可扩展缓冲区设计](https://img-blog.csdnimg.cn/f564c6e78959495aa05909d88aed77c2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5piv6Zi_5q-b5ZWK,size_20,color_FFFFFF,t_70,g_se,x_16)
 
 ## 3.3 缓冲区实现代码
@@ -756,6 +758,7 @@ void NetBuffer::expandBuffer(uint32_t needSize)
 
 无缓冲区测试结果
 ![无缓冲区测试结果](https://img-blog.csdnimg.cn/aa17f70fa97e42f9a02b69b65e556239.jpeg#pic_center)
+<br>
 加入缓冲区测试结果
 ![加入缓冲区测试结果](https://img-blog.csdnimg.cn/4e5daec6b7334c3c8ac0ca6f1de8bdd2.jpeg#pic_center)
 
